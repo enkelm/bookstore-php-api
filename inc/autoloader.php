@@ -5,5 +5,6 @@ spl_autoload_register(function($className) {
     // echo $file;
     if (file_exists($file)) {
         include $file;
+        // require_once './const.php';
     }
 });

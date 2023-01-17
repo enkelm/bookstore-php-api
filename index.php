@@ -1,20 +1,29 @@
 <?php
 include_once './inc/autoloader.php';
-// include_once './inc/cross.php';
+
 
 use Controllers\RolesController;
-use Controllers\UsersController;
+use Controllers\AuthController;
 
 enum Endpoints 
 {
-    case users;
+    case auth;
     case roles;
 }
 
 enum Methods
 {
+    case signup;
+    case login;
     case getAll;
 }
+
+
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: OPTIONS,GET,POST,PUT,DELETE");
+header("Access-Control-Max-Age: 3600");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);        
 $uri = explode('/', $uri);
@@ -26,8 +35,8 @@ foreach(Endpoints::cases() as $controller) {
             {
                 $objFeedController;
                 switch ($controller->name) {
-                    case 'users':
-                        $objFeedController = new UsersController();
+                    case 'auth':
+                        $objFeedController = new AuthController();
                         break;
                     case 'roles':
                         $objFeedController = new RolesController();
