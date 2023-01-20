@@ -2,34 +2,36 @@
 
 namespace Controllers;
 
-use Error;
-use Models\RolesModel;
+define("SECRET_KEY", "test123");
 
-class RolesController extends BaseController
+use Error;
+use Models\UsersModel;
+
+
+class AdminController extends BaseController
 {
-    private $rolesModel;
+    private $requestMethod;
 
     public function __construct()
     {
         parent::__construct();
-        $this->rolesModel = new RolesModel;
     }
 
-    public function addAction()
+    public function getAllAction()
     {
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
 
         if ($this->validateToken(true, 'ADMIN')) {
-            if (strtoupper($requestMethod) == 'POST') {
+            if (strtoupper($requestMethod) == 'GET') {
                 try {
-                    $inputRole = (array) json_decode(file_get_contents('php://input'), TRUE);
+                    $userModel = new UsersModel();
 
-                    $this->rolesModel->insert($inputRole);
+                    $arrUsers = $userModel->getAll();
 
-                    $responseData = $inputRole;
+                    $responseData = $arrUsers;
                 } catch (Error $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support';
+                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
                     $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
                 }
             } else {
@@ -41,11 +43,11 @@ class RolesController extends BaseController
             $strErrorHeader = 'HTTP/1.1 402 Not Authorized';
         }
 
-        // send output 
+        // send output
         if (!$strErrorDesc) {
             $this->sendOutput(
                 $responseData,
-                array('Content-Type: application/json', 'HTTP/1.1 200 Created')
+                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
             );
         } else {
             $this->sendOutput(
