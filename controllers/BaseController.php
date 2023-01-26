@@ -61,8 +61,17 @@ class BaseController
 		exit;
 	}
 
+	public function getUserId()
+	{
+		$token = $this->getBearerToken();
+		$payload = JWT::decode($token, SECRET_KEY, ['HS256']);
 
-	public function validateToken(bool $roleValidation = false, string $requiredRole = '')
+		$user = $this->usersModel->fetchBy(['Username' => $payload[0]->Username]);
+		return $user[0]['Id'];
+	}
+
+
+	public function validateToken(string $requiredRole = '')
 	{
 		try {
 			$token = $this->getBearerToken();
@@ -74,7 +83,7 @@ class BaseController
 				$this->returnResponse(INVALID_USER_PASS, "This user is not found in our database.");
 			}
 
-			if ($roleValidation && $requiredRole !== '') {
+			if ($requiredRole !== '') {
 				$roleId = $user[0]['Role'];
 				$rolesModel = new RolesModel;
 				$role = $rolesModel->fetchBy(['RoleId' => $roleId]);

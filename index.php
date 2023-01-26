@@ -5,7 +5,7 @@ use Controllers\AdminController;
 use Controllers\AuthController;
 use Controllers\RolesController;
 use Controllers\ProductsController;
-
+use Controllers\PurchaseController;
 
 enum Endpoints
 {
@@ -13,6 +13,7 @@ enum Endpoints
     case admin;
     case roles;
     case products;
+    case purchase;
 }
 
 enum Methods
@@ -53,6 +54,9 @@ foreach (Endpoints::cases() as $controller) {
                         break;
                     case 'products':
                         $objFeedController = new ProductsController();
+                        break;
+                    case 'purchase':
+                        $objFeedController = new PurchaseController();
                         break;
                     default:
                         echo 'Not implemented';

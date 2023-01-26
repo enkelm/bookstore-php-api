@@ -20,7 +20,7 @@ class RolesController extends BaseController
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
 
-        if ($this->validateToken(true, 'ADMIN')) {
+        if ($this->validateToken('ADMIN')) {
             if (strtoupper($requestMethod) == 'POST') {
                 try {
                     $inputRole = (array) json_decode(file_get_contents('php://input'), TRUE);

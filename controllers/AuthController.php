@@ -2,8 +2,6 @@
 
 namespace Controllers;
 
-define("SECRET_KEY", "test123");
-
 use Error;
 use Models\UsersModel;
 use Util\JWT;
@@ -76,7 +74,7 @@ class AuthController extends BaseController
                 $user = $userModel->fetchBy(['Username' => $username]);
 
                 if (password_verify($credentials['PasswordHash'], $user[0]['PasswordHash'])) {
-                    $responseData = ['token' => JWT::encode($user, SECRET_KEY)];
+                    $responseData = ['token' => JWT::encode($user, SECRET_KEY), 'role' => ''];
                 } else throw new Error('Invalid Password! ');
             } catch (Error $e) {
                 $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support';

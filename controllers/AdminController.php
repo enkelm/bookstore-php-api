@@ -22,7 +22,7 @@ class AdminController extends BaseController
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
 
-        if ($this->validateToken(true, 'ADMIN')) {
+        if ($this->validateToken('ADMIN')) {
             if (strtoupper($requestMethod) == 'GET') {
                 try {
                     $userModel = new UsersModel();
