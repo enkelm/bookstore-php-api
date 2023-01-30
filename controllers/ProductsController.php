@@ -34,6 +34,7 @@ class ProductsController extends BaseController
                     $fileName = explode(".", $inputProduct['CoverImageUrl']);
                     $fileName = Helpers::generateRandomString(20) . '.' . $fileName[sizeof($fileName) - 1];
                     $inputProduct['CoverImageUrl'] = $fileName;
+                    $inputProduct['CreatedAt'] = date('d-m-y h:i:s');
 
                     //Generate Image URL
                     $path = str_replace('controllers', 'images\\', __DIR__) . $inputProduct['CoverImageUrl'];
@@ -42,12 +43,14 @@ class ProductsController extends BaseController
                     // Save File
                     $inputProduct['CoverImage'] = (array) $_FILES;
                     $inputProduct['CoverImage']['CoverImage']['name'] = $fileName;
-                    $inputProduct['CoverImage']['CoverImage']['full_path'] = $fileName;
-                    // file_put_contents($path, $fileName);
+                    if (is_uploaded_file($inputProduct['CoverImage']['CoverImage']['tmp_name'])) {
+                        move_uploaded_file($inputProduct['CoverImage']['CoverImage']['tmp_name'], $path);
+                    }
+                    unset($inputProduct['CoverImage']);
 
-                    // $this->productsModel->insert($inputProduct);
+                    $this->productsModel->insert($inputProduct);
 
-                    $responseData = ['url' => $inputProduct['CoverImageUrl']];
+                    $responseData = $inputProduct;
                 } catch (Error $e) {
                     $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
                     $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
@@ -81,23 +84,18 @@ class ProductsController extends BaseController
         $strErrorDesc = '';
         $requestMethod = $_SERVER["REQUEST_METHOD"];
 
-        if ($this->validateToken('ADMIN')) {
-            if (strtoupper($requestMethod) == 'POST') {
-                try {
-                    $products = $this->productsModel->getAll();
+        if (strtoupper($requestMethod) == 'GET') {
+            try {
+                $products = $this->productsModel->getAll();
 
-                    $responseData = $products;
-                } catch (Error $e) {
-                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
-                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
-                }
-            } else {
-                $strErrorDesc = 'Method not supported';
-                $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+                $responseData = $products;
+            } catch (Error $e) {
+                $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
+                $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
             }
         } else {
-            $strErrorDesc = 'User not authorized';
-            $strErrorHeader = 'HTTP/1.1 402 Not Authorized';
+            $strErrorDesc = 'Method not supported';
+            $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
         }
 
         // send output
