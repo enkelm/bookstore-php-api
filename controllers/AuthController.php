@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Error;
+use Models\RolesModel;
 use Models\UsersModel;
 use Util\JWT;
 
@@ -10,11 +11,13 @@ use Util\JWT;
 class AuthController extends BaseController
 {
     private $usersModel;
+    private $roleModel;
     private $requestMethod;
 
     public function __construct()
     {
         $this->usersModel = new UsersModel;
+        $this->roleModel = new RolesModel;
     }
 
     public function signupAction()
@@ -32,7 +35,7 @@ class AuthController extends BaseController
                 $hash = password_hash($inputUser['PasswordHash'], PASSWORD_DEFAULT);
                 $inputUser['PasswordHash'] = $hash;
 
-                // $userModel->insert($inputUser);
+                $userModel->insert($inputUser);
 
                 $responseData = $inputUser;
             } catch (Error $e) {
@@ -74,7 +77,9 @@ class AuthController extends BaseController
                 $user = $userModel->fetchBy(['Username' => $username]);
 
                 if (password_verify($credentials['PasswordHash'], $user[0]['PasswordHash'])) {
-                    $responseData = ['token' => JWT::encode($user, SECRET_KEY), 'role' => ''];
+                    $role = $user[0]['Role'];
+                    $role = $this->roleModel->fetchBy(['Id' => $role]);
+                    $responseData = ['token' => JWT::encode($user, SECRET_KEY), 'role' => $role[0]['Name']];
                 } else throw new Error('Invalid Password! ');
             } catch (Error $e) {
                 $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support';
