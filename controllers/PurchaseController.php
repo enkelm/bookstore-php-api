@@ -41,15 +41,18 @@ class PurchaseController extends BaseController
                     $itemPrices = [];
                     $totalPrice = 0;
                     // Creates prod price based on its quantity on a single purchase
-                    foreach ($items as $productId => $productQuantity) {
-                        array_push($productList, $this->productsModel->fetchBy(['Id' => $productId]));
-                        $currentItem = end($productList);
-                        if ($productQuantity >= $currentItem['BulkCondition']) {
-                            $itemPrice = $currentItem['BulkPrice'] * $productQuantity;
+                    foreach ($items as $item) {
+                        foreach ($item as $productId => $productQuantity) {
+                            $product = $this->productsModel->fetchBy(['Id' => $productId]);
+                            array_push($productList, $product[0]);
+                            $currentItem = end($productList);
+                            if ($productQuantity >= $currentItem['BulkCondition']) {
+                                $itemPrice = $currentItem['BulkPrice'] * $productQuantity;
+                            }
+                            $itemPrice = $currentItem['Price'] * $productQuantity;
+                            array_push($itemPrices, $itemPrice);
+                            $totalPrice += $itemPrice;
                         }
-                        $itemPrice = $currentItem['Price'] * $productQuantity;
-                        array_push($itemPrices, $itemPrice);
-                        $totalPrice += $itemPrice;
                     }
 
                     $currentDateTime = date('d-m-y h:i:s');
@@ -59,8 +62,8 @@ class PurchaseController extends BaseController
                     $purchase = $this->purchasesModel->fetchBy(['CreatedAt' => $currentDateTime]);
 
                     for ($i = 0; sizeof($items); $i++) {
-
-                        $insertPurchasedItem = ['Price' => $itemPrices[$i], 'Quantity' => $items[$i], 'Purchase' => $purchase['Id'], 'Product' => $productList[$i]['Id']];
+                        $quantity = intval($items[$i][$productList[$i]['Id']]);
+                        $insertPurchasedItem = ['Price' => $itemPrices[$i], 'Quantity' => $quantity, 'Purchase' => $purchase[0]['Id'], 'Product' => $productList[$i]['Id']];
                         $this->purchasedItemsModel->insert($insertPurchasedItem);
                     }
 
