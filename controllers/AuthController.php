@@ -16,6 +16,7 @@ class AuthController extends BaseController
 
     public function __construct()
     {
+        parent::__construct();
         $this->usersModel = new UsersModel;
         $this->roleModel = new RolesModel;
     }
@@ -34,6 +35,10 @@ class AuthController extends BaseController
 
                 $hash = password_hash($inputUser['PasswordHash'], PASSWORD_DEFAULT);
                 $inputUser['PasswordHash'] = $hash;
+
+                if (!($this->validateToken('ADMIN') && $inputUser['Role'] == 1)) {
+                    $inputUser['Role'] = 2;
+                }
 
                 $userModel->insert($inputUser);
 
