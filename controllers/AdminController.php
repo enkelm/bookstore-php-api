@@ -71,8 +71,8 @@ class AdminController extends BaseController
             if (strtoupper($requestMethod) == 'POST') {
                 try {
                     $data = (array) json_decode(file_get_contents('php://input'), TRUE);
-                    $result = $this->purchaseModel->delete(["Purchase" => $data["Id"]]);//product with that id
-                    $result = $this->UsersModel->delete($data);//user with that id
+                    $result = $this->purchasesModel->delete(["Purchase" => $data["Id"]]);//product with that id
+                    $result = $this->userModel->delete($data);//user with that id
                     $responseData = $result;
                 } catch (Error $e) {
                     $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
