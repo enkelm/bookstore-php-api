@@ -124,7 +124,7 @@ class ProductsController extends BaseController
             if (strtoupper($requestMethod) == 'POST') {
                 try {
                     $data = (array) json_decode(file_get_contents('php://input'), TRUE);
-                    $conditions = array('Id' => $data["Id"], 'CreatedAt' => $data["CreatedAt"]);
+                    $conditions = array('Id' => $data["Id"]);
                     $result = $this->productsModel->update($data, $conditions);
                     $responseData = $data;
                 } catch (Error $e) {

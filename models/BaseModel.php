@@ -108,7 +108,6 @@ class BaseModel extends DatabaseCtx
             $query .= " `$key`= ? AND";
         }
         $query = substr($query, 0, strlen($query) - 4);
-        var_dump($query);
         foreach ($updateValues as $key => $value) {
             $fieldConditions[$cnt++] = $value;
         }
