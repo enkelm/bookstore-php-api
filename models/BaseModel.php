@@ -93,41 +93,29 @@ class BaseModel extends DatabaseCtx
         return $this->db->lastInsertId();
     }
 
+
     public function update(array $updateValues, array $conditions)
     {
         $fieldConditions = [];
         $cnt = 0;
-        $query = "UPDATE " . $this->tableName .
-            " SET Id = ?,Title = ?,Author= ?,Description = ?,Price = ?,BulkPrice = ?,
-        BulkCondition = ?,CoverImageUrl= ?,CreatedAt= ? WHERE Id=? AND CreatedAt = ?";
+        $query = "UPDATE " . $this->tableName . " SET ";
+        foreach ($updateValues as $key => $value) {
+            $query .= " `$key`= ?,";
+        }
+        $query = substr($query, 0, strlen($query) - 1);
+        $query = $query . " WHERE ";
+        foreach ($conditions as $key => $value) {
+            $query .= " `$key`= ? AND";
+        }
+        $query = substr($query, 0, strlen($query) - 4);
+        var_dump($query);
         foreach ($updateValues as $key => $value) {
             $fieldConditions[$cnt++] = $value;
         }
         foreach ($conditions as $key => $value) {
             $fieldConditions[$cnt++] = $value;
         }
-        //var_dump($query);
-        // foreach ($updateValues as $key => $value) {
-        //     $query .= " `$key`=:$key,";
-        // }
-        // $query = substr($query, 0, strlen($query) - 1);
-        // $query .= " WHERE";
-        // foreach ($conditions as $key => $value) {
-        //     if (in_array($key, $this->fields)) {
-        //         $fieldConditions[$key] = $value;
-        //         $query .= " $key=:$key AND";
-        //     }
-        // }
-        // $query = substr($query, 0, strlen($query) - 4);
-
         $statement = $this->db->prepare($query);
-        // foreach ($updateValues as $key => $value) {
-        //     $statement->bindValue(":$key", $value);
-        // }
-        // foreach ($fieldConditions as $key => $value) {
-        //     $statement->bindValue(":$key", $value);
-        // }
-
         try {
             $statement->execute($fieldConditions);
         } catch (PDOException $e) {
