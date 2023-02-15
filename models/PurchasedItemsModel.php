@@ -2,6 +2,7 @@
 
 namespace Models;
 
+use PDO;
 use PDOException;
 
 class PurchasedItemsModel extends BaseModel
@@ -26,7 +27,7 @@ class PurchasedItemsModel extends BaseModel
             throw $e;
         }
 
-        $results =  $statement->fetchAll();
+        $results =  $statement->fetchAll(PDO::FETCH_ASSOC);
         $statement->closeCursor();
         return $results;
     }

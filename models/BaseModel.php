@@ -35,7 +35,7 @@ class BaseModel extends DatabaseCtx
             throw $e;
         }
 
-        $results =  $statement->fetchAll();
+        $results =  $statement->fetchAll(PDO::FETCH_ASSOC);
         $statement->closeCursor();
         return $results;
     }
@@ -60,7 +60,7 @@ class BaseModel extends DatabaseCtx
             throw $e;
         }
 
-        $results =  $statement->fetchAll();
+        $results =  $statement->fetchAll(PDO::FETCH_ASSOC);
         $statement->closeCursor();
         return $results;
     }
