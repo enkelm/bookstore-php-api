@@ -34,7 +34,7 @@ class BaseModel extends DatabaseCtx
         } catch (PDOException $e) {
             throw $e;
         }
-        
+
         $results =  $statement->fetchAll();
         $statement->closeCursor();
         return $results;
@@ -44,7 +44,7 @@ class BaseModel extends DatabaseCtx
     {
         $fieldsConditions = [];
         $query = "SELECT * FROM $this->tableName WHERE";
-        foreach ($conditions as $key=>$value) {
+        foreach ($conditions as $key => $value) {
             if (in_array($key, $this->fields)) {
                 $fieldsConditions[$key] = $value;
                 $query .= " $key=:$key AND";
@@ -65,10 +65,11 @@ class BaseModel extends DatabaseCtx
         return $results;
     }
 
-    public function insert(array $insertValues) {
+    public function insert(array $insertValues)
+    {
         $fieldsValues = [];
         $query = "INSERT INTO $this->tableName (";
-        foreach ($insertValues as $key=>$value) {
+        foreach ($insertValues as $key => $value) {
             if (in_array($key, $this->fields)) {
                 $fieldsValues[$key] = $value;
                 $query .= "$key,";
@@ -76,7 +77,7 @@ class BaseModel extends DatabaseCtx
         }
         $query = substr($query, 0, strlen($query) - 1);
         $query .= " ) VALUES (";
-        foreach ($fieldsValues as $key=>$value) {
+        foreach ($fieldsValues as $key => $value) {
             $query .= " :$key,";
         }
         $query = substr($query, 0, strlen($query) - 1);
@@ -95,30 +96,40 @@ class BaseModel extends DatabaseCtx
     public function update(array $updateValues, array $conditions)
     {
         $fieldConditions = [];
-        $query = "UPDATE $this->tableName SET";
-        foreach ($updateValues as $key=>$value) {
-            $query .=" `$key`=:$key,";
+        $cnt = 0;
+        $query = "UPDATE " . $this->tableName .
+            " SET Id = ?,Title = ?,Author= ?,Description = ?,Price = ?,BulkPrice = ?,
+        BulkCondition = ?,CoverImageUrl= ?,CreatedAt= ? WHERE Id=? AND CreatedAt = ?";
+        foreach ($updateValues as $key => $value) {
+            $fieldConditions[$cnt++] = $value;
         }
-        $query = substr($query, 0, strlen($query) - 1);
-        $query .= " WHERE";
-        foreach ($conditions as $key=>$value) {
-            if (in_array($key, $this->fields)) {
-                $fieldConditions[$key] = $value;
-                $query .=" $key=:$key AND";
-            }
+        foreach ($conditions as $key => $value) {
+            $fieldConditions[$cnt++] = $value;
         }
-        $query = substr($query, 0, strlen($query) - 4);
+        //var_dump($query);
+        // foreach ($updateValues as $key => $value) {
+        //     $query .= " `$key`=:$key,";
+        // }
+        // $query = substr($query, 0, strlen($query) - 1);
+        // $query .= " WHERE";
+        // foreach ($conditions as $key => $value) {
+        //     if (in_array($key, $this->fields)) {
+        //         $fieldConditions[$key] = $value;
+        //         $query .= " $key=:$key AND";
+        //     }
+        // }
+        // $query = substr($query, 0, strlen($query) - 4);
 
         $statement = $this->db->prepare($query);
-        foreach ($updateValues as $key=>$value) {
-            $statement->bindValue(":$key", $value);
-        }
-        foreach ($fieldConditions as $key=>$value) {
-            $statement->bindValue(":$key", $value);
-        }
+        // foreach ($updateValues as $key => $value) {
+        //     $statement->bindValue(":$key", $value);
+        // }
+        // foreach ($fieldConditions as $key => $value) {
+        //     $statement->bindValue(":$key", $value);
+        // }
 
         try {
-            $statement->execute();
+            $statement->execute($fieldConditions);
         } catch (PDOException $e) {
             throw $e;
         }
@@ -126,10 +137,11 @@ class BaseModel extends DatabaseCtx
         return true;
     }
 
-    public function delete(array $conditions) {
+    public function delete(array $conditions)
+    {
         $fieldsConditions = [];
         $query = "DELETE FROM $this->tableName WHERE";
-        foreach ($conditions as $key=>$value) {
+        foreach ($conditions as $key => $value) {
             if (in_array($key, $this->fields)) {
                 $fieldsConditions[$key] = $value;
                 $query .= " $key=:$key AND";
@@ -145,5 +157,5 @@ class BaseModel extends DatabaseCtx
         }
         $statement->closeCursor();
         return true;
-    }   
+    }
 }
