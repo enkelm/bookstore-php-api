@@ -38,7 +38,7 @@ class ProductsController extends BaseController
 
                     //Generate Image URL
                     $path = str_replace('controllers', 'images\\', __DIR__) . $inputProduct['CoverImageUrl'];
-                    $inputProduct['CoverImageUrl'] = "localhost:80/bookstore-php-api/images/" . $inputProduct['CoverImageUrl'];
+                    $inputProduct['CoverImageUrl'] = "http://localhost/bookstore-php-api/images/" . $inputProduct['CoverImageUrl'];
 
                     // Save File
                     $inputProduct['CoverImage'] = (array) $_FILES;
@@ -96,6 +96,45 @@ class ProductsController extends BaseController
         } else {
             $strErrorDesc = 'Method not supported';
             $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+        }
+
+        // send output
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+            );
+        } else {
+            $this->sendOutput(
+                json_encode(array('error' => $strErrorDesc)),
+                array('Content-Type: application/json', $strErrorHeader)
+            );
+        }
+    }
+
+    function putAction()
+    {
+        $strErrorDesc = '';
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+
+        if ($this->validateToken('ADMIN')) {
+            if (strtoupper($requestMethod) == 'POST') {
+                try {
+                    $data = (array) json_decode(file_get_contents('php://input'), TRUE);
+                    $conditions = array('Id' => $data["Id"], 'CreatedAt' => $data["CreatedAt"]);
+                    $result = $this->productsModel->update($data, $conditions);
+                    $responseData = $data;
+                } catch (Error $e) {
+                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
+                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+                }
+            } else {
+                $strErrorDesc = 'Method not supported';
+                $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+            }
+        } else {
+            $strErrorDesc = 'User not authorized';
+            $strErrorHeader = 'HTTP/1.1 402 Not Authorized';
         }
 
         // send output
