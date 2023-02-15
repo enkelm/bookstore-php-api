@@ -22,6 +22,52 @@ class PurchaseController extends BaseController
         $this->productsModel = new ProductsModel;
     }
 
+    public function getAllAction()
+    {
+        $strErrorDesc = '';
+        $requestMethod = $_SERVER["REQUEST_METHOD"];
+
+        if ($this->validateToken("ADMIN")) {
+            if (strtoupper($requestMethod) == 'GET') {
+                try {
+                    $length = $this->purchasesModel->getCount();
+                    $length = $length["COUNT(*)"];
+                    $result = [];
+                    for ($i = 1; $i <= $length; $i++) {
+                        $purchaseInfo = $this->purchasesModel->getInfo($i);
+                        $purchaseItemsInfo = $this->purchasedItemsModel->getPurchaseInfo($i);
+                        array_push($purchaseInfo, $purchaseItemsInfo);
+                        array_push($result, $purchaseInfo);
+                    }
+
+                    $responseData = $result;
+                } catch (Error $e) {
+                    $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
+                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+                }
+            } else {
+                $strErrorDesc = 'Method not supported';
+                $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+            }
+        } else {
+            $strErrorDesc = 'User not authorized';
+            $strErrorHeader = 'HTTP/1.1 402 Not Authorized';
+        }
+
+        // send output
+        if (!$strErrorDesc) {
+            $this->sendOutput(
+                $responseData,
+                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
+            );
+        } else {
+            $this->sendOutput(
+                json_encode(array('error' => $strErrorDesc)),
+                array('Content-Type: application/json', $strErrorHeader)
+            );
+        }
+    }
+
     public function addAction()
     {
         $strErrorDesc = '';
@@ -94,4 +140,7 @@ class PurchaseController extends BaseController
             );
         }
     }
+    // public function deleteAction(){
+
+    // }
 }
