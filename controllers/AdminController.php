@@ -72,12 +72,12 @@ class AdminController extends BaseController
         if ($this->validateToken('ADMIN')) {
             if (strtoupper($requestMethod) == 'POST') {
                 try {
-                    $lalalal = [];
+                    $purchaseIdInfo = [];
                     $data = (array) json_decode(file_get_contents('php://input'), TRUE);
-                    $lalalal = $this->userModel->getPurchaseId($data["Id"]);
+                    $purchaseIdInfo = $this->purchasesModel->getPurchaseId($data["Id"]);
 
-                    if ($this->userModel->countPurchase($data["Id"]) > 0) {
-                        foreach ($lalalal as $key => $value) {
+                    if ($this->purchasesModel->countPurchase($data["Id"]) > 0) {
+                        foreach ($purchaseIdInfo as $key => $value) {
                             $result = $this->purchasedItemsModel->delete(["Purchase" => $value]);
                         }
                         $result = $this->purchasesModel->delete(["User" => $data["Id"]]);
