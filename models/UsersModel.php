@@ -15,7 +15,9 @@ class UsersModel extends BaseModel
         
         $hash = password_hash($updateValues['PasswordHash'], PASSWORD_DEFAULT);
         $updateValues['PasswordHash'] = $hash;
-            
+        
+        $fieldConditions = [];
+        $cnt=0;
         $query="UPDATE users SET ";
         foreach ($updateValues as $key => $value) {
             $query .= " `$key`= ?,";
