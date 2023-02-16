@@ -122,7 +122,7 @@ class AdminController extends BaseController
                 try {
                     $data = (array) json_decode(file_get_contents('php://input'), TRUE);
                     $conditions = array('Id' => $data["Id"]);
-                    $result = $this->userModel->update($data, $conditions);
+                    $result = $this->userModel->updateUsers($data, $conditions);
                     $responseData = $data;
                 } catch (Error $e) {
                     $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
