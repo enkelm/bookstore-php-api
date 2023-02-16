@@ -7,11 +7,12 @@ define("SECRET_KEY", "test123");
 use Error;
 use Models\UsersModel;
 use Models\PurchasesModel;
+use Models\PurchasedItemsModel;
 
 class AdminController extends BaseController
 {
     private $requestMethod;
-
+    private $purchasedItemsModel;
     private $purchasesModel;
     private $userModel;
 
@@ -19,6 +20,7 @@ class AdminController extends BaseController
     {
         parent::__construct();
         $this->purchasesModel = new PurchasesModel;
+        $this->purchasedItemsModel = new PurchasedItemsModel;
         $this->userModel = new UsersModel;
     }
 
@@ -70,9 +72,15 @@ class AdminController extends BaseController
         if ($this->validateToken('ADMIN')) {
             if (strtoupper($requestMethod) == 'POST') {
                 try {
-                    $data = (array) json_decode(file_get_contents('php://input'), TRUE);
-                    $result = $this->purchasesModel->delete(["Purchase" => $data["Id"]]);//product with that id
-                    $result = $this->userModel->delete($data);//user with that id
+                    $lalalal=[];
+                    $data = (array) json_decode(file_get_contents('php://input'), TRUE); 
+                    $lalalal= $this->userModel->getPurchaseId($data["Id"]);
+
+                    foreach($lalalal as $key => $value){
+                        $result = $this->purchasedItemsModel->delete(["Purchase" => $value]);
+                    }
+                    $result = $this->purchasesModel->delete(["User" => $data["Id"]]);
+                    $result = $this->userModel->delete(["Id" => $data["Id"]]);
                     $responseData = $result;
                 } catch (Error $e) {
                     $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
