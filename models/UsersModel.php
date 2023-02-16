@@ -13,8 +13,12 @@ class UsersModel extends BaseModel
 
     function updateUser($updateValues, $conditions){
         
-        $hash = password_hash($updateValues['PasswordHash'], PASSWORD_DEFAULT);
-        $updateValues['PasswordHash'] = $hash;
+        if($updateValues['PasswordHash'] !== ''){
+            $hash = password_hash($updateValues['PasswordHash'], PASSWORD_DEFAULT);
+            $updateValues['PasswordHash'] = $hash;
+        } else {
+            unset($updateValues['PasswordHash']);
+        }
         
         $fieldConditions = [];
         $cnt=0;

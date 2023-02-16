@@ -2,8 +2,6 @@
 
 namespace Controllers;
 
-define("SECRET_KEY", "test123");
-
 use Error;
 use Models\UsersModel;
 use Models\PurchasesModel;
@@ -75,7 +73,7 @@ class AdminController extends BaseController
                     $data = (array) json_decode(file_get_contents('php://input'), TRUE);
                     $conditions = array('Id' => $data["Id"]);
                     $result = $this->userModel->updateUser($data, $conditions);
-                    $responseData = $data;
+                    $responseData = $result;
                 } catch (Error $e) {
                     $strErrorDesc = $e->getMessage() . 'Something went wrong! Please contact support.';
                     $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
