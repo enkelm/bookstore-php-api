@@ -27,4 +27,21 @@ class UsersModel extends BaseModel
         $statement->closeCursor();
         return $results;
     }
+
+    function countPurchase($userId)
+    {
+        $query = "SELECT COUNT(*)
+        FROM purchases
+        WHERE purchases.User = " . $userId;
+        $statement = $this->db->prepare($query);
+        try {
+            $statement->execute();
+        } catch (PDOException $e) {
+            throw $e;
+        }
+
+        $results = $statement->fetch(PDO::FETCH_ASSOC);
+        $statement->closeCursor();
+        return $results;
+    }
 }
