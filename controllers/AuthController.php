@@ -35,9 +35,10 @@ class AuthController extends BaseController
 
                 $hash = password_hash($inputUser['PasswordHash'], PASSWORD_DEFAULT);
                 $inputUser['PasswordHash'] = $hash;
-
-                if (!($this->validateToken('ADMIN') && $inputUser['Role'] == 1)) {
-                    $inputUser['Role'] = 2;
+                if($this->hasToken()){
+                    if (!($this->validateToken('ADMIN') && $inputUser['Role'] == 1)) {
+                        $inputUser['Role'] = 2;
+                    }
                 }
 
                 $userModel->insert($inputUser);

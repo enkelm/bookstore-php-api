@@ -129,7 +129,19 @@ class BaseController
 				return $matches[1];
 			}
 		}
-		$this->throwError(ATHORIZATION_HEADER_NOT_FOUND, 'Access Token Not found');
+		$this->throwError(301, 'Access Token Not found');
+	}
+	
+	public function hasToken()
+	{
+		$headers = $this->getAuthorizationHeader();
+		// HEADER: Get the access token from the header
+		if (!empty($headers)) {
+			if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
+				return $matches[1];
+			}
+		}
+		return false;
 	}
 
 	public function throwError($code, $message)
