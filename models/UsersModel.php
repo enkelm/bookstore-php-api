@@ -11,7 +11,7 @@ class UsersModel extends BaseModel
         parent::__construct("users");
     }
 
-    function updateUsers($updateValues, $conditions){
+    function updateUser($updateValues, $conditions){
         
         $hash = password_hash($updateValues['PasswordHash'], PASSWORD_DEFAULT);
         $updateValues['PasswordHash'] = $hash;
