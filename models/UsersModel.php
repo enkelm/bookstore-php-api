@@ -1,6 +1,7 @@
 <?php
 
 namespace Models;
+
 use PDO;
 use PDOException;
 
@@ -11,18 +12,37 @@ class UsersModel extends BaseModel
         parent::__construct("users");
     }
 
-    function updateUser($updateValues, $conditions){
-        
-        if($updateValues['PasswordHash'] !== ''){
+    function emailExists($email)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE Email = :email");
+
+        // bind the email parameter to the query
+        $stmt->bindParam(':email', $email);
+
+        // execute the query
+        $stmt->execute();
+
+        // check if any rows were returned
+        if ($stmt->rowCount() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function updateUser($updateValues, $conditions)
+    {
+
+        if ($updateValues['PasswordHash'] !== '') {
             $hash = password_hash($updateValues['PasswordHash'], PASSWORD_DEFAULT);
             $updateValues['PasswordHash'] = $hash;
         } else {
             unset($updateValues['PasswordHash']);
         }
-        
+
         $fieldConditions = [];
-        $cnt=0;
-        $query="UPDATE users SET ";
+        $cnt = 0;
+        $query = "UPDATE users SET ";
         foreach ($updateValues as $key => $value) {
             $query .= " `$key`= ?,";
         }
@@ -47,6 +67,4 @@ class UsersModel extends BaseModel
         $statement->closeCursor();
         return true;
     }
-
-    
 }

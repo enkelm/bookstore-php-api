@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Error;
+use InvalidArgumentException;
 use Models\RolesModel;
 use Models\UsersModel;
 use Util\JWT;
@@ -33,15 +34,27 @@ class AuthController extends BaseController
 
                 $inputUser = (array) json_decode(file_get_contents('php://input'), TRUE);
 
+                $regexMatch =
+                    !preg_match("/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*$/", $inputUser['PasswordHash'])
+                    && !preg_match("/^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/", $inputUser['Email']);
+                $emailExists = $userModel->emailExists($inputUser['Email']);
+
+                if ($regexMatch || $emailExists)
+                    throw new InvalidArgumentException('Password does not meet requirements');
+
+                $inputUser['Username'] = $inputUser['Email'];
+
                 $hash = password_hash($inputUser['PasswordHash'], PASSWORD_DEFAULT);
                 $inputUser['PasswordHash'] = $hash;
-                if($this->hasToken()){
+                if ($this->hasToken()) {
                     if (!($this->validateToken('ADMIN') && $inputUser['Role'] == 1)) {
                         $inputUser['Role'] = 2;
                     }
                 }
 
-                $userModel->insert($inputUser);
+                $inputUser['CreatedAt'] = date('y-m-d h:i:s');
+
+                // $userModel->insert($inputUser);
 
                 $responseData = $inputUser;
             } catch (Error $e) {
